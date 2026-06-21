@@ -1,0 +1,292 @@
+/* ════════════════════════════════════════════════════════════════
+   theme.css — Variables de diseño y estilos globales
+   Paleta: LEGO — rojo, amarillo, azul, verde, naranja
+   Dos modos: :root = claro  |  [data-theme="dark"] = oscuro
+════════════════════════════════════════════════════════════════ */
+
+/* ── Tokens de marca LEGO (invariantes) ── */
+:root {
+  --lego-red:    #E3000B;
+  --lego-yellow: #F7D117;
+  --lego-blue:   #006CB7;
+  --lego-green:  #00A650;
+  --lego-orange: #F47B20;
+  --lego-black:  #1A1A1A;
+  --lego-white:  #F8F8F5;
+
+  --font-ui:   'Segoe UI', system-ui, sans-serif;
+  --font-code: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+
+  --transition-theme: background 0.25s, color 0.25s, border-color 0.25s;
+}
+
+/* ════════════════════════
+   TEMA CLARO (por defecto)
+════════════════════════ */
+:root {
+  --color-bg:           #F8F8F5;
+  --color-surface:      #FFFFFF;
+  --color-border:       #006CB7;
+  --color-border-soft:  #b8d4ec;
+  --color-accent:       #E3000B;
+  --color-accent-hover: #b8000a;
+  --color-text:         #1A1A1A;
+  --color-text-muted:   #555;
+
+  --blockly-bg:         #F0F4FF;
+  --blockly-grid:       #C8D8F0;
+  --blockly-scrollbar:  #b8d4ec;
+  --blockly-marker:     #E3000B;
+
+  --code-bg:            #FFFDF0;
+  --code-text-c:        #006CB7;
+  --code-text-output:   #00A650;
+
+  --header-stripe: var(--lego-yellow);
+  --btn-theme-bg:  var(--lego-black);
+  --btn-theme-fg:  var(--lego-white);
+}
+
+/* ════════════════════════
+   TEMA OSCURO
+════════════════════════ */
+[data-theme="dark"] {
+  --color-bg:           #1A1A1A;
+  --color-surface:      #242424;
+  --color-border:       #F7D117;
+  --color-border-soft:  #3a3a2a;
+  --color-accent:       #F7D117;
+  --color-accent-hover: #c9aa00;
+  --color-text:         #F8F8F5;
+  --color-text-muted:   #aaa;
+
+  --blockly-bg:         #111111;
+  --blockly-grid:       #2a2a2a;
+  --blockly-scrollbar:  #3a3a3a;
+  --blockly-marker:     #F7D117;
+
+  --code-bg:            #0d0d0d;
+  --code-text-c:        #F7D117;
+  --code-text-output:   #00A650;
+
+  --header-stripe: var(--lego-red);
+  --btn-theme-bg:  var(--lego-yellow);
+  --btn-theme-fg:  var(--lego-black);
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Cuerpo ── */
+body {
+  font-family: var(--font-ui);
+  background: var(--color-bg);
+  color: var(--color-text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: var(--transition-theme);
+}
+
+/* ── Header ── */
+header {
+  background: var(--color-surface);
+  border-bottom: 3px solid var(--header-stripe);
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  transition: var(--transition-theme);
+}
+
+header h1 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--color-accent);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+header .badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--lego-white);
+  background: var(--lego-blue);
+  padding: 2px 9px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+
+/* empuja el botón de tema al extremo derecho */
+header .spacer { flex: 1; }
+
+/* ── Botón toggle de tema ── */
+#btn-tema {
+  background: var(--btn-theme-bg);
+  color: var(--btn-theme-fg);
+  border: none;
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s, color 0.2s, transform 0.1s;
+  white-space: nowrap;
+}
+
+#btn-tema:hover  { opacity: 0.85; }
+#btn-tema:active { transform: scale(0.96); }
+
+/* ── Layout principal ── */
+.main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Panel Blockly ── */
+#blockly-panel {
+  width: 70%;
+  position: relative;
+  border-right: 2px solid var(--color-border);
+  transition: border-color 0.25s;
+}
+
+#blocklyDiv {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Panel derecho ── */
+#right-panel {
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  overflow: hidden;
+  transition: var(--transition-theme);
+}
+
+.panel-section {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-border-soft);
+  transition: border-color 0.25s;
+}
+
+.panel-section.grow {
+  flex: 1;
+  overflow: hidden;
+}
+
+.section-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+
+/* ── Sección controles compacta ── */
+.panel-section.controles { padding: 8px 10px; gap: 6px; }
+
+/* ── Botón Ejecutar ── */
+#btn-ejecutar {
+  background: var(--lego-green);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  width: 100%;
+  letter-spacing: 0.3px;
+  transition: background 0.15s, transform 0.1s;
+}
+
+#btn-ejecutar:hover  { background: #008a42; }
+#btn-ejecutar:active { transform: scale(0.97); }
+
+/* ── Grid de botones secundarios ── */
+.btn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+/* base para todos los botones del grid */
+.btn-grid button,
+.btn-grid label {
+  background: transparent;
+  border: 1.5px solid var(--color-border-soft);
+  border-radius: 5px;
+  padding: 5px 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  color: var(--color-text-muted);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-grid button:hover,
+.btn-grid label:hover {
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+/* colores específicos */
+#btn-limpiar        { color: var(--color-text-muted); }
+#btn-guardar-json   { color: var(--lego-green);  border-color: var(--lego-green); }
+#btn-cargar-json    { color: var(--lego-orange); border-color: var(--lego-orange); }
+#btn-descargar-c    { color: var(--lego-blue);   border-color: var(--lego-blue); }
+#btn-descargar-exe  { color: var(--lego-blue);   border-color: var(--lego-blue); }
+
+#btn-guardar-json:hover  { background: var(--lego-green);  color: #fff; }
+#btn-cargar-json:hover   { background: var(--lego-orange); color: #fff; }
+#btn-descargar-c:hover:not(:disabled)   { background: var(--lego-blue); color: #fff; }
+#btn-descargar-exe:hover:not(:disabled) { background: var(--lego-blue); color: #fff; }
+
+#btn-descargar-c:disabled,
+#btn-descargar-exe:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ── Áreas de código ── */
+.code-area {
+  flex: 1;
+  background: var(--code-bg);
+  border: 1.5px solid var(--color-border-soft);
+  border-radius: 5px;
+  padding: 10px;
+  font-family: var(--font-code);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--code-text-c);
+  overflow-y: auto;
+  white-space: pre;
+  resize: none;
+  transition: var(--transition-theme);
+}
+
+#output-area {
+  color: var(--code-text-output);
+}
+
+/* ── Scrollbar ── */
+.code-area::-webkit-scrollbar       { width: 5px; }
+.code-area::-webkit-scrollbar-track { background: var(--code-bg); }
+.code-area::-webkit-scrollbar-thumb { background: var(--color-border-soft); border-radius: 3px; }

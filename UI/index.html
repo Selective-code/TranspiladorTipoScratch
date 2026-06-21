@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compilador Visual C — Tipo Scratch</title>
+  <link rel="icon" href="favicon.png">
+
+  <!-- Tema visual (colores, tipografía, layout) -->
+  <link rel="stylesheet" href="theme.css" />
+
+  <!-- Blockly desde CDN -->
+  <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+</head>
+<body>
+
+<header>
+  <h1>Transpilador Bloques - C</h1>
+  <span class="badge">Scratch 2</span>
+  <div class="spacer"></div>
+  <button id="btn-tema" title="Cambiar tema">🌙 Oscuro</button>
+</header>
+
+<div class="main">
+
+  <!-- Panel izquierdo: workspace de Blockly -->
+  <div id="blockly-panel">
+    <div id="blocklyDiv"></div>
+  </div>
+
+  <!-- Panel derecho: controles y output -->
+  <div id="right-panel">
+
+    <div class="panel-section controles">
+      <button id="btn-ejecutar">▶ Ejecutar</button>
+      <div class="btn-grid">
+        <button id="btn-limpiar">✕ Limpiar</button>
+        <button id="btn-guardar-json">💾 Guardar</button>
+        <label  id="btn-cargar-json">📂 Cargar
+          <input type="file" id="input-cargar-json" accept=".json" style="display:none">
+        </label>
+        <button id="btn-descargar-c"   disabled>⬇ .c</button>
+        <button id="btn-descargar-exe" disabled>⬇ .exe</button>
+      </div>
+    </div>
+
+    <div class="panel-section grow" style="flex: 1.3;">
+      <div class="section-label">Código C generado</div>
+      <div id="codigo-c" class="code-area">// Aquí aparecerá el código C...</div>
+    </div>
+
+    <div class="panel-section grow">
+      <div class="section-label">Output / AST</div>
+      <div id="output-area" class="code-area">// Aquí aparecerá el resultado...</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toolbox de Blockly (oculto, solo declarativo) -->
+<xml id="toolbox" style="display:none">
+  <category name="Variables" colour="#1a237e">
+    <block type="bloque_decl"></block>
+    <block type="bloque_assign"></block>
+    <block type="bloque_decl_assign"></block>
+  </category>
+  <category name="Entrada / Salida" colour="#1b5e20">
+    <block type="bloque_print"></block>
+    <block type="bloque_read"></block>
+  </category>
+  <category name="Ciclos" colour="#e65100">
+    <block type="bloque_for"></block>
+    <block type="bloque_while"></block>
+  </category>
+  <category name="Condicionales" colour="#f9a825">
+    <block type="bloque_if"></block>
+    <block type="bloque_if_else"></block>
+    <block type="bloque_switch"></block>
+    <block type="bloque_case"></block>
+  </category>
+  <category name="Vectores y Matrices" colour="#6a1b9a">
+    <block type="bloque_vec_decl"></block>
+    <block type="bloque_vec_assign"></block>
+    <block type="bloque_mat_decl"></block>
+    <block type="bloque_mat_assign"></block>
+  </category>
+  <category name="Control de Flujo" colour="#b71c1c">
+    <block type="bloque_break"></block>
+  </category>
+</xml>
+
+<!-- Lógica: bloques personalizados + clase UIBloques -->
+<script src="/Logic/ast.js"></script>
+<script src="/Logic/automata_pila.js"></script>
+<script src="/Logic/mt_transductora.js"></script>
+<script src="UIBloques.js"></script>
+
+<!-- Bootstrap: crea la instancia y conecta los botones -->
+<script>
+  const ui = new UIBloques(null); // reemplaza null por tu intérprete cuando esté listo
+  ui.inicializar();
+
+  document.getElementById('btn-ejecutar').addEventListener('click', () => ui.onEjecutar());
+
+  document.getElementById('btn-guardar-json').addEventListener('click', () => ui.guardarJSON());
+
+  document.getElementById('input-cargar-json').addEventListener('change', e => {
+    if (e.target.files[0]) ui.cargarJSON(e.target.files[0]);
+    e.target.value = ''; // permite recargar el mismo archivo
+  });
+
+  document.getElementById('btn-descargar-c').addEventListener('click',   () => window.open('/descargar/c'));
+  document.getElementById('btn-descargar-exe').addEventListener('click', () => window.open('/descargar/exe'));
+
+  document.getElementById('btn-limpiar').addEventListener('click', () => {
+    for (const bloque of ui.workspace.getTopBlocks(false)) {
+      if (bloque.type !== 'bloque_programa') bloque.dispose(true);
+    }
+    const [programa] = ui.workspace.getBlocksByType('bloque_programa', false);
+    if (programa) {
+      const input = programa.getInput('cuerpo');
+      let actual  = input?.connection?.targetBlock();
+      while (actual) {
+        const siguiente = actual.getNextBlock();
+        actual.dispose(true);
+        actual = siguiente;
+      }
+    }
+    ui.bloquesCanvas = [];
+    document.getElementById('codigo-c').textContent    = '// Workspace limpiado.';
+    document.getElementById('output-area').textContent = '';
+  });
+
+  window.addEventListener('resize', () => Blockly.svgResize(ui.workspace));
+
+  /* ── Toggle de tema ── */
+  const btnTema = document.getElementById('btn-tema');
+  const DARK    = 'dark';
+
+  function aplicarTema(oscuro) {
+    document.documentElement.setAttribute('data-theme', oscuro ? DARK : '');
+    btnTema.textContent = oscuro ? '☀️ Claro' : '🌙 Oscuro';
+    localStorage.setItem('tema', oscuro ? DARK : 'light');
+
+    /* Actualiza los colores del workspace de Blockly */
+    const css = getComputedStyle(document.documentElement);
+    const v   = name => css.getPropertyValue(name).trim();
+    ui.workspace.setTheme(
+      Blockly.Theme.defineTheme('tema-ui', {
+        base: Blockly.Themes.Classic,
+        componentStyles: {
+          workspaceBackgroundColour: v('--blockly-bg'),
+          toolboxBackgroundColour:   v('--color-surface'),
+          toolboxForegroundColour:   v('--color-text'),
+          flyoutBackgroundColour:    v('--blockly-bg'),
+          flyoutForegroundColour:    v('--color-text'),
+          flyoutOpacity: 0.97,
+          scrollbarColour:           v('--blockly-scrollbar'),
+          insertionMarkerColour:     v('--blockly-marker'),
+          insertionMarkerOpacity: 0.6,
+        }
+      })
+    );
+  }
+
+  btnTema.addEventListener('click', () => {
+    const esOscuro = document.documentElement.getAttribute('data-theme') !== DARK;
+    aplicarTema(esOscuro);
+  });
+
+  /* Restaura preferencia guardada */
+  aplicarTema(localStorage.getItem('tema') === DARK);
+</script>
+
+</body>
+</html>

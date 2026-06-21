@@ -1,0 +1,4 @@
+node_modules/
+temp.c
+temp.exe
+package-lock.json

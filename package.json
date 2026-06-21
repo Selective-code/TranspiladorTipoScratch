@@ -1,0 +1,17 @@
+{
+  "name": "transpilador-tipo-scratch",
+  "version": "1.0.0",
+  "description": "Compilador visual tipo Scratch que genera código C",
+  "main": "servidor.js",
+  "scripts": {
+    "start": "node servidor.js",
+    "dev": "nodemon servidor.js"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}
