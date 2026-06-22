@@ -180,7 +180,7 @@ MTTransductora.DELTA = {
   },
 
   q1: {
-    ENDPROGRAMA: { siguiente: 'q_accept', salida: 'system("pause");\nreturn 0;\n}' },
+    ENDPROGRAMA: { siguiente: 'q_accept', salida: '#ifdef _WIN32\nsystem("pause");\n#endif\nreturn 0;\n}' },
     ENDFOR:      { siguiente: 'q1',       salida: '}\n'          },
     ENDWHILE:    { siguiente: 'q1',       salida: '}\n'          },
     ENDIF:       { siguiente: 'q1',       salida: '}\n'          },
