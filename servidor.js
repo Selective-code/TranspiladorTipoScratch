@@ -14,7 +14,7 @@ const fs       = require('fs');
 const Ejecutor = require('./Logic/ejecutor');
 
 const app      = express();
-const PORT     = 3000;
+const PORT = process.env.PORT || 3000;
 const ejecutor = new Ejecutor();
 
 /* ── Middleware ──────────────────────────────────────────────── */
@@ -56,6 +56,7 @@ app.get('/descargar/exe', (req, res) => {
 });
 
 /* ── Arranque ────────────────────────────────────────────────── */
+
 app.listen(PORT, () => {
-  console.log(`Transpilador corriendo en http://localhost:${PORT}`);
+    console.log(`Servidor corriendo en puerto ${PORT}`);
 });
