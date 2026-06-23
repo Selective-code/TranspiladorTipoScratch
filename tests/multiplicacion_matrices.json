@@ -1,0 +1,345 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "bloque_func_def",
+        "id": "fd1",
+        "x": 420,
+        "y": 50,
+        "fields": { "tipoRetorno": "void", "nombre": "multiplicar" },
+        "inputs": {
+          "params": { "block": {
+            "type": "bloque_param",
+            "id": "p1",
+            "fields": { "tipoDato": "int", "nombre": "a0" },
+            "next": { "block": {
+              "type": "bloque_param",
+              "id": "p2",
+              "fields": { "tipoDato": "int", "nombre": "a1" },
+              "next": { "block": {
+                "type": "bloque_param",
+                "id": "p3",
+                "fields": { "tipoDato": "int", "nombre": "a2" },
+                "next": { "block": {
+                  "type": "bloque_param",
+                  "id": "p4",
+                  "fields": { "tipoDato": "int", "nombre": "a3" },
+                  "next": { "block": {
+                    "type": "bloque_param",
+                    "id": "p5",
+                    "fields": { "tipoDato": "int", "nombre": "b0" },
+                    "next": { "block": {
+                      "type": "bloque_param",
+                      "id": "p6",
+                      "fields": { "tipoDato": "int", "nombre": "b1" },
+                      "next": { "block": {
+                        "type": "bloque_param",
+                        "id": "p7",
+                        "fields": { "tipoDato": "int", "nombre": "b2" },
+                        "next": { "block": {
+                          "type": "bloque_param",
+                          "id": "p8",
+                          "fields": { "tipoDato": "int", "nombre": "b3" }
+                        }}
+                      }}
+                    }}
+                  }}
+                }}
+              }}
+            }}
+          }},
+          "cuerpo": { "block": {
+            "type": "bloque_mat_decl",
+            "id": "f01",
+            "fields": { "tipoDato": "int", "nombre": "A", "filas": 2, "columnas": 2 },
+            "next": { "block": {
+              "type": "bloque_mat_decl",
+              "id": "f02",
+              "fields": { "tipoDato": "int", "nombre": "B", "filas": 2, "columnas": 2 },
+              "next": { "block": {
+                "type": "bloque_mat_decl",
+                "id": "f03",
+                "fields": { "tipoDato": "int", "nombre": "C", "filas": 2, "columnas": 2 },
+                "next": { "block": {
+                  "type": "bloque_mat_assign",
+                  "id": "f04",
+                  "fields": { "nombre": "A", "fila": "0", "columna": "0", "valor": "a0" },
+                  "next": { "block": {
+                    "type": "bloque_mat_assign",
+                    "id": "f05",
+                    "fields": { "nombre": "A", "fila": "0", "columna": "1", "valor": "a1" },
+                    "next": { "block": {
+                      "type": "bloque_mat_assign",
+                      "id": "f06",
+                      "fields": { "nombre": "A", "fila": "1", "columna": "0", "valor": "a2" },
+                      "next": { "block": {
+                        "type": "bloque_mat_assign",
+                        "id": "f07",
+                        "fields": { "nombre": "A", "fila": "1", "columna": "1", "valor": "a3" },
+                        "next": { "block": {
+                          "type": "bloque_mat_assign",
+                          "id": "f08",
+                          "fields": { "nombre": "B", "fila": "0", "columna": "0", "valor": "b0" },
+                          "next": { "block": {
+                            "type": "bloque_mat_assign",
+                            "id": "f09",
+                            "fields": { "nombre": "B", "fila": "0", "columna": "1", "valor": "b1" },
+                            "next": { "block": {
+                              "type": "bloque_mat_assign",
+                              "id": "f10",
+                              "fields": { "nombre": "B", "fila": "1", "columna": "0", "valor": "b2" },
+                              "next": { "block": {
+                                "type": "bloque_mat_assign",
+                                "id": "f11",
+                                "fields": { "nombre": "B", "fila": "1", "columna": "1", "valor": "b3" },
+                                "next": { "block": {
+                                  "type": "bloque_print_texto",
+                                  "id": "f12",
+                                  "fields": { "texto": "=== Matriz A ===" },
+                                  "next": { "block": {
+                                    "type": "bloque_for",
+                                    "id": "f13",
+                                    "fields": { "variable": "i", "inicio": 0, "fin": 2, "incremento": 1 },
+                                    "inputs": {
+                                      "cuerpo": { "block": {
+                                        "type": "bloque_for",
+                                        "id": "f14",
+                                        "fields": { "variable": "j", "inicio": 0, "fin": 2, "incremento": 1 },
+                                        "inputs": {
+                                          "cuerpo": { "block": {
+                                            "type": "bloque_print_inline",
+                                            "id": "f15",
+                                            "fields": { "valor": "A[i][j]", "tipoDato": "int" }
+                                          }}
+                                        },
+                                        "next": { "block": {
+                                          "type": "bloque_print_texto",
+                                          "id": "f15b",
+                                          "fields": { "texto": "" }
+                                        }}
+                                      }}
+                                    },
+                                    "next": { "block": {
+                                      "type": "bloque_print_texto",
+                                      "id": "f16",
+                                      "fields": { "texto": "=== Matriz B ===" },
+                                      "next": { "block": {
+                                        "type": "bloque_for",
+                                        "id": "f17",
+                                        "fields": { "variable": "i", "inicio": 0, "fin": 2, "incremento": 1 },
+                                        "inputs": {
+                                          "cuerpo": { "block": {
+                                            "type": "bloque_for",
+                                            "id": "f18",
+                                            "fields": { "variable": "j", "inicio": 0, "fin": 2, "incremento": 1 },
+                                            "inputs": {
+                                              "cuerpo": { "block": {
+                                                "type": "bloque_print_inline",
+                                                "id": "f19",
+                                                "fields": { "valor": "B[i][j]", "tipoDato": "int" }
+                                              }}
+                                            },
+                                            "next": { "block": {
+                                              "type": "bloque_print_texto",
+                                              "id": "f19b",
+                                              "fields": { "texto": "" }
+                                            }}
+                                          }}
+                                        },
+                                        "next": { "block": {
+                                          "type": "bloque_for",
+                                          "id": "f20",
+                                          "fields": { "variable": "i", "inicio": 0, "fin": 2, "incremento": 1 },
+                                          "inputs": {
+                                            "cuerpo": { "block": {
+                                              "type": "bloque_for",
+                                              "id": "f21",
+                                              "fields": { "variable": "j", "inicio": 0, "fin": 2, "incremento": 1 },
+                                              "inputs": {
+                                                "cuerpo": { "block": {
+                                                  "type": "bloque_mat_assign",
+                                                  "id": "f22",
+                                                  "fields": { "nombre": "C", "fila": "i", "columna": "j", "valor": "0" }
+                                                }}
+                                              }
+                                            }}
+                                          },
+                                          "next": { "block": {
+                                            "type": "bloque_for",
+                                            "id": "f23",
+                                            "fields": { "variable": "i", "inicio": 0, "fin": 2, "incremento": 1 },
+                                            "inputs": {
+                                              "cuerpo": { "block": {
+                                                "type": "bloque_for",
+                                                "id": "f24",
+                                                "fields": { "variable": "j", "inicio": 0, "fin": 2, "incremento": 1 },
+                                                "inputs": {
+                                                  "cuerpo": { "block": {
+                                                    "type": "bloque_for",
+                                                    "id": "f25",
+                                                    "fields": { "variable": "k", "inicio": 0, "fin": 2, "incremento": 1 },
+                                                    "inputs": {
+                                                      "cuerpo": { "block": {
+                                                        "type": "bloque_mat_assign",
+                                                        "id": "f26",
+                                                        "fields": { "nombre": "C", "fila": "i", "columna": "j", "valor": "C[i][j]+A[i][k]*B[k][j]" }
+                                                      }}
+                                                    }
+                                                  }}
+                                                }
+                                              }}
+                                            },
+                                            "next": { "block": {
+                                              "type": "bloque_print_texto",
+                                              "id": "f27",
+                                              "fields": { "texto": "=== Resultado C=A*B ===" },
+                                              "next": { "block": {
+                                                "type": "bloque_for",
+                                                "id": "f28",
+                                                "fields": { "variable": "i", "inicio": 0, "fin": 2, "incremento": 1 },
+                                                "inputs": {
+                                                  "cuerpo": { "block": {
+                                                    "type": "bloque_for",
+                                                    "id": "f29",
+                                                    "fields": { "variable": "j", "inicio": 0, "fin": 2, "incremento": 1 },
+                                                    "inputs": {
+                                                      "cuerpo": { "block": {
+                                                        "type": "bloque_print_inline",
+                                                        "id": "f30",
+                                                        "fields": { "valor": "C[i][j]", "tipoDato": "int" }
+                                                      }}
+                                                    },
+                                                    "next": { "block": {
+                                                      "type": "bloque_print_texto",
+                                                      "id": "f30b",
+                                                      "fields": { "texto": "" }
+                                                    }}
+                                                  }}
+                                                }
+                                              }}
+                                            }}
+                                          }}
+                                        }}
+                                      }}
+                                    }}
+                                  }}
+                                }}
+                              }}
+                            }}
+                          }}
+                        }}
+                      }}
+                    }}
+                  }}
+                }}
+              }}
+            }}
+          }}
+        }
+      },
+      {
+        "type": "bloque_programa",
+        "id": "prog",
+        "x": 50,
+        "y": 50,
+        "inputs": {
+          "cuerpo": { "block": {
+            "type": "bloque_decl",
+            "id": "m01",
+            "fields": { "tipoDato": "int", "variable": "a0" },
+            "next": { "block": {
+              "type": "bloque_read",
+              "id": "m02",
+              "fields": { "tipoDato": "int", "variable": "a0" },
+              "next": { "block": {
+                "type": "bloque_decl",
+                "id": "m03",
+                "fields": { "tipoDato": "int", "variable": "a1" },
+                "next": { "block": {
+                  "type": "bloque_read",
+                  "id": "m04",
+                  "fields": { "tipoDato": "int", "variable": "a1" },
+                  "next": { "block": {
+                    "type": "bloque_decl",
+                    "id": "m05",
+                    "fields": { "tipoDato": "int", "variable": "a2" },
+                    "next": { "block": {
+                      "type": "bloque_read",
+                      "id": "m06",
+                      "fields": { "tipoDato": "int", "variable": "a2" },
+                      "next": { "block": {
+                        "type": "bloque_decl",
+                        "id": "m07",
+                        "fields": { "tipoDato": "int", "variable": "a3" },
+                        "next": { "block": {
+                          "type": "bloque_read",
+                          "id": "m08",
+                          "fields": { "tipoDato": "int", "variable": "a3" },
+                          "next": { "block": {
+                            "type": "bloque_decl",
+                            "id": "m09",
+                            "fields": { "tipoDato": "int", "variable": "b0" },
+                            "next": { "block": {
+                              "type": "bloque_read",
+                              "id": "m10",
+                              "fields": { "tipoDato": "int", "variable": "b0" },
+                              "next": { "block": {
+                                "type": "bloque_decl",
+                                "id": "m11",
+                                "fields": { "tipoDato": "int", "variable": "b1" },
+                                "next": { "block": {
+                                  "type": "bloque_read",
+                                  "id": "m12",
+                                  "fields": { "tipoDato": "int", "variable": "b1" },
+                                  "next": { "block": {
+                                    "type": "bloque_decl",
+                                    "id": "m13",
+                                    "fields": { "tipoDato": "int", "variable": "b2" },
+                                    "next": { "block": {
+                                      "type": "bloque_read",
+                                      "id": "m14",
+                                      "fields": { "tipoDato": "int", "variable": "b2" },
+                                      "next": { "block": {
+                                        "type": "bloque_decl",
+                                        "id": "m15",
+                                        "fields": { "tipoDato": "int", "variable": "b3" },
+                                        "next": { "block": {
+                                          "type": "bloque_read",
+                                          "id": "m16",
+                                          "fields": { "tipoDato": "int", "variable": "b3" },
+                                          "next": { "block": {
+                                            "type": "bloque_func_call",
+                                            "id": "m17",
+                                            "fields": { "nombre": "multiplicar" },
+                                            "extraState": {
+                                              "numArgs": 8,
+                                              "args": {
+                                                "arg1": "a0", "arg2": "a1",
+                                                "arg3": "a2", "arg4": "a3",
+                                                "arg5": "b0", "arg6": "b1",
+                                                "arg7": "b2", "arg8": "b3"
+                                              }
+                                            }
+                                          }}
+                                        }}
+                                      }}
+                                    }}
+                                  }}
+                                }}
+                              }}
+                            }}
+                          }}
+                        }}
+                      }}
+                    }}
+                  }}
+                }}
+              }}
+            }}
+          }}
+        }
+      }
+    ]
+  }
+}

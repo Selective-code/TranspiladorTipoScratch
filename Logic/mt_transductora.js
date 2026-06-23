@@ -79,6 +79,16 @@ class MTTransductora {
         break;
       }
 
+      case 'PRINT_INLINE': {
+        const fmt = this.formato(partes[2]);
+        salida = `printf("${fmt} ",${partes[1]});\n`;
+        break;
+      }
+
+      case 'PRINT_TEXTO':
+        salida = `printf("${partes[1]}\\n");\n`;
+        break;
+
       case 'READ': {
         const fmt = this.formato(partes[2]);
         salida = `scanf("${fmt}",&${partes[1]});\n`;

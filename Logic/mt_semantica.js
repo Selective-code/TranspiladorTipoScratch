@@ -58,6 +58,14 @@ class MTSemantica {
     return true;
   }
 
+  /* Extrae identificadores de una expresión (ignora keywords y literales) */
+  _extraerIdentificadores(expr) {
+    const keywords = new Set(['int','float','double','char','void',
+      'if','else','for','while','return','switch','case','break']);
+    return (expr.match(/\b[a-zA-Z_][a-zA-Z0-9_]*\b/g) ?? [])
+      .filter(id => !keywords.has(id));
+  }
+
   /* Busca una variable en cinta 2 desde el scope actual hacia arriba */
   _verificar(nombre) {
     for (let i = this.cintaSimbolos.length - 1; i >= 0; i--) {
@@ -189,9 +197,15 @@ class MTSemantica {
         if (!this._verificar(partes[1])) return;
         break;
 
-      case 'PRINT':        /* PRINT:variable:tipoDato */
-        if (!this._verificar(partes[1])) return;
+      case 'PRINT':        /* PRINT:valor:tipoDato — sin verificación */
         break;
+
+      case 'PRINT_INLINE': /* PRINT_INLINE:valor:tipoDato — sin verificación */
+        break;
+
+      case 'PRINT_TEXTO':  /* PRINT_TEXTO:texto — literal, sin verificación */
+        break;
+
 
       case 'READ':         /* READ:variable:tipoDato */
         if (!this._verificar(partes[1])) return;

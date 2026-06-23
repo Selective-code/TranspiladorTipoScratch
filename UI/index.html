@@ -44,20 +44,23 @@
       </div>
     </div>
 
-    <div class="panel-section" style="padding-bottom: 6px;">
-      <div class="section-label">Entrada del programa (stdin)</div>
-      <textarea id="stdin-area" class="code-area"
-        placeholder="Un valor por línea. Ej:&#10;5&#10;3&#10;1"
-        style="height:70px; resize:vertical; font-family:inherit;"></textarea>
+    <div class="tabs-bar">
+      <button class="tab-btn active" data-tab="stdin">Entrada</button>
+      <button class="tab-btn"        data-tab="codigo">Código C</button>
+      <button class="tab-btn"        data-tab="output">Output</button>
     </div>
 
-    <div class="panel-section grow" style="flex: 1.3;">
-      <div class="section-label">Código C generado</div>
+    <div class="tab-panel active" id="tab-stdin">
+      <textarea id="stdin-area" class="code-area"
+        placeholder="Un valor por línea. Ej:&#10;5&#10;3&#10;1"
+        style="resize:none; font-family:inherit;"></textarea>
+    </div>
+
+    <div class="tab-panel" id="tab-codigo">
       <div id="codigo-c" class="code-area">// Aquí aparecerá el código C...</div>
     </div>
 
-    <div class="panel-section grow">
-      <div class="section-label">Output / AST</div>
+    <div class="tab-panel" id="tab-output">
       <div id="output-area" class="code-area">// Aquí aparecerá el resultado...</div>
     </div>
 
@@ -73,6 +76,8 @@
   </category>
   <category name="Entrada / Salida" colour="#1b5e20">
     <block type="bloque_print"></block>
+    <block type="bloque_print_inline"></block>
+    <block type="bloque_print_texto"></block>
     <block type="bloque_read"></block>
   </category>
   <category name="Ciclos" colour="#e65100">
@@ -114,7 +119,10 @@
   const ui = new UIBloques(null); // reemplaza null por tu intérprete cuando esté listo
   ui.inicializar();
 
-  document.getElementById('btn-ejecutar').addEventListener('click', () => ui.onEjecutar());
+  document.getElementById('btn-ejecutar').addEventListener('click', async () => {
+    await ui.onEjecutar();
+    activarTab('output');
+  });
 
   document.getElementById('btn-guardar-json').addEventListener('click', () => ui.guardarJSON());
 
@@ -123,8 +131,14 @@
     e.target.value = ''; // permite recargar el mismo archivo
   });
 
-  document.getElementById('btn-descargar-c').addEventListener('click',   () => window.open('/descargar/c'));
-  document.getElementById('btn-descargar-exe').addEventListener('click', () => window.open('/descargar/exe'));
+  document.getElementById('btn-descargar-c').addEventListener('click', function() {
+    const nombre = this.dataset.nombre || 'programa';
+    window.open(`/descargar/c?nombre=${encodeURIComponent(nombre)}`);
+  });
+  document.getElementById('btn-descargar-exe').addEventListener('click', function() {
+    const nombre = this.dataset.nombre || 'programa';
+    window.open(`/descargar/exe?nombre=${encodeURIComponent(nombre)}`);
+  });
 
   document.getElementById('btn-limpiar').addEventListener('click', () => {
     for (const bloque of ui.workspace.getTopBlocks(false)) {
@@ -146,6 +160,17 @@
   });
 
   window.addEventListener('resize', () => Blockly.svgResize(ui.workspace));
+
+  /* ── Pestañas ── */
+  function activarTab(nombre) {
+    document.querySelectorAll('.tab-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.tab === nombre));
+    document.querySelectorAll('.tab-panel').forEach(p =>
+      p.classList.toggle('active', p.id === 'tab-' + nombre));
+  }
+
+  document.querySelectorAll('.tab-btn').forEach(btn =>
+    btn.addEventListener('click', () => activarTab(btn.dataset.tab)));
 
   /* ── Toggle de tema ── */
   const btnTema = document.getElementById('btn-tema');

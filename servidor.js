@@ -44,7 +44,8 @@ app.get('/descargar/c', (req, res) => {
   if (!fs.existsSync(ejecutor.rutaC)) {
     return res.status(404).json({ error: 'No hay archivo .c disponible. Ejecuta el programa primero.' });
   }
-  res.download(ejecutor.rutaC, 'programa.c');
+  const nombre = (req.query.nombre || 'programa').replace(/[^a-zA-Z0-9_\-]/g, '_');
+  res.download(ejecutor.rutaC, `${nombre}.c`);
 });
 
 /* ── GET /descargar/exe ──────────────────────────────────────── */
@@ -52,7 +53,8 @@ app.get('/descargar/exe', (req, res) => {
   if (!fs.existsSync(ejecutor.rutaBinario)) {
     return res.status(404).json({ error: 'No hay binario disponible. Ejecuta el programa primero.' });
   }
-  res.download(ejecutor.rutaBinario, 'programa.exe');
+  const nombre = (req.query.nombre || 'programa').replace(/[^a-zA-Z0-9_\-]/g, '_');
+  res.download(ejecutor.rutaBinario, `${nombre}.exe`);
 });
 
 /* ── Arranque ────────────────────────────────────────────────── */

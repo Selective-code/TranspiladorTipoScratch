@@ -1,0 +1,223 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "bloque_programa",
+        "id": "main_block",
+        "x": 50,
+        "y": 50,
+        "inputs": {
+          "cuerpo": { "block": {
+            "type": "bloque_decl", "id": "decl_a",
+            "fields": { "tipoDato": "float", "variable": "a" },
+            "next": { "block": {
+              "type": "bloque_decl", "id": "decl_b",
+              "fields": { "tipoDato": "float", "variable": "b" },
+              "next": { "block": {
+                "type": "bloque_decl", "id": "decl_op",
+                "fields": { "tipoDato": "int", "variable": "op" },
+                "next": { "block": {
+                  "type": "bloque_print_texto", "id": "prompt_a",
+                  "fields": { "texto": "Ingresa el primer numero:" },
+                  "next": { "block": {
+                    "type": "bloque_read", "id": "read_a",
+                    "fields": { "tipoDato": "float", "variable": "a" },
+                    "next": { "block": {
+                      "type": "bloque_print_texto", "id": "prompt_b",
+                      "fields": { "texto": "Ingresa el segundo numero:" },
+                      "next": { "block": {
+                        "type": "bloque_read", "id": "read_b",
+                        "fields": { "tipoDato": "float", "variable": "b" },
+                        "next": { "block": {
+                          "type": "bloque_print_texto", "id": "prompt_op",
+                          "fields": { "texto": "Operacion (1=suma 2=resta 3=multi 4=divi):" },
+                          "next": { "block": {
+                            "type": "bloque_read", "id": "read_op",
+                            "fields": { "tipoDato": "int", "variable": "op" },
+                            "next": { "block": {
+                              "type": "bloque_switch", "id": "switch_op",
+                              "fields": { "variable": "op" },
+                              "inputs": {
+                                "cuerpo": { "block": {
+                                  "type": "bloque_case", "id": "case_1",
+                                  "fields": { "valor": "1" },
+                                  "inputs": {
+                                    "cuerpo": { "block": {
+                                      "type": "bloque_func_call", "id": "call_suma",
+                                      "extraState": { "numArgs": 2, "args": { "arg1": "a", "arg2": "b" } },
+                                      "fields": { "nombre": "suma" },
+                                      "next": { "block": { "type": "bloque_break", "id": "brk_1" } }
+                                    }}
+                                  },
+                                  "next": { "block": {
+                                    "type": "bloque_case", "id": "case_2",
+                                    "fields": { "valor": "2" },
+                                    "inputs": {
+                                      "cuerpo": { "block": {
+                                        "type": "bloque_func_call", "id": "call_resta",
+                                        "extraState": { "numArgs": 2, "args": { "arg1": "a", "arg2": "b" } },
+                                        "fields": { "nombre": "resta" },
+                                        "next": { "block": { "type": "bloque_break", "id": "brk_2" } }
+                                      }}
+                                    },
+                                    "next": { "block": {
+                                      "type": "bloque_case", "id": "case_3",
+                                      "fields": { "valor": "3" },
+                                      "inputs": {
+                                        "cuerpo": { "block": {
+                                          "type": "bloque_func_call", "id": "call_multi",
+                                          "extraState": { "numArgs": 2, "args": { "arg1": "a", "arg2": "b" } },
+                                          "fields": { "nombre": "multi" },
+                                          "next": { "block": { "type": "bloque_break", "id": "brk_3" } }
+                                        }}
+                                      },
+                                      "next": { "block": {
+                                        "type": "bloque_case", "id": "case_4",
+                                        "fields": { "valor": "4" },
+                                        "inputs": {
+                                          "cuerpo": { "block": {
+                                            "type": "bloque_func_call", "id": "call_divi",
+                                            "extraState": { "numArgs": 2, "args": { "arg1": "a", "arg2": "b" } },
+                                            "fields": { "nombre": "divi" },
+                                            "next": { "block": { "type": "bloque_break", "id": "brk_4" } }
+                                          }}
+                                        }
+                                      }}
+                                    }}
+                                  }}
+                                }}
+                              }
+                            }}
+                          }}
+                        }}
+                      }}
+                    }}
+                  }}
+                }}
+              }}
+            }}
+          }}
+        }
+      },
+      {
+        "type": "bloque_func_def", "id": "func_suma",
+        "x": 500, "y": 50,
+        "fields": { "tipoRetorno": "void", "nombre": "suma" },
+        "inputs": {
+          "params": { "block": {
+            "type": "bloque_param", "id": "ps_a",
+            "fields": { "tipoDato": "float", "nombre": "a" },
+            "next": { "block": {
+              "type": "bloque_param", "id": "ps_b",
+              "fields": { "tipoDato": "float", "nombre": "b" }
+            }}
+          }},
+          "cuerpo": { "block": {
+            "type": "bloque_print_texto", "id": "lbl_suma",
+            "fields": { "texto": "--- Suma ---" },
+            "next": { "block": {
+              "type": "bloque_decl_assign", "id": "suma_res",
+              "fields": { "tipoDato": "float", "variable": "resultado", "valor": "a+b" },
+              "next": { "block": {
+                "type": "bloque_print", "id": "suma_print",
+                "fields": { "valor": "resultado", "tipoDato": "float" }
+              }}
+            }}
+          }}
+        }
+      },
+      {
+        "type": "bloque_func_def", "id": "func_resta",
+        "x": 900, "y": 50,
+        "fields": { "tipoRetorno": "void", "nombre": "resta" },
+        "inputs": {
+          "params": { "block": {
+            "type": "bloque_param", "id": "pr_a",
+            "fields": { "tipoDato": "float", "nombre": "a" },
+            "next": { "block": {
+              "type": "bloque_param", "id": "pr_b",
+              "fields": { "tipoDato": "float", "nombre": "b" }
+            }}
+          }},
+          "cuerpo": { "block": {
+            "type": "bloque_print_texto", "id": "lbl_resta",
+            "fields": { "texto": "--- Resta ---" },
+            "next": { "block": {
+              "type": "bloque_decl_assign", "id": "resta_res",
+              "fields": { "tipoDato": "float", "variable": "resultado", "valor": "a-b" },
+              "next": { "block": {
+                "type": "bloque_print", "id": "resta_print",
+                "fields": { "valor": "resultado", "tipoDato": "float" }
+              }}
+            }}
+          }}
+        }
+      },
+      {
+        "type": "bloque_func_def", "id": "func_multi",
+        "x": 500, "y": 420,
+        "fields": { "tipoRetorno": "void", "nombre": "multi" },
+        "inputs": {
+          "params": { "block": {
+            "type": "bloque_param", "id": "pm_a",
+            "fields": { "tipoDato": "float", "nombre": "a" },
+            "next": { "block": {
+              "type": "bloque_param", "id": "pm_b",
+              "fields": { "tipoDato": "float", "nombre": "b" }
+            }}
+          }},
+          "cuerpo": { "block": {
+            "type": "bloque_print_texto", "id": "lbl_multi",
+            "fields": { "texto": "--- Multiplicacion ---" },
+            "next": { "block": {
+              "type": "bloque_decl_assign", "id": "multi_res",
+              "fields": { "tipoDato": "float", "variable": "resultado", "valor": "a*b" },
+              "next": { "block": {
+                "type": "bloque_print", "id": "multi_print",
+                "fields": { "valor": "resultado", "tipoDato": "float" }
+              }}
+            }}
+          }}
+        }
+      },
+      {
+        "type": "bloque_func_def", "id": "func_divi",
+        "x": 900, "y": 420,
+        "fields": { "tipoRetorno": "void", "nombre": "divi" },
+        "inputs": {
+          "params": { "block": {
+            "type": "bloque_param", "id": "pd_a",
+            "fields": { "tipoDato": "float", "nombre": "a" },
+            "next": { "block": {
+              "type": "bloque_param", "id": "pd_b",
+              "fields": { "tipoDato": "float", "nombre": "b" }
+            }}
+          }},
+          "cuerpo": { "block": {
+            "type": "bloque_print_texto", "id": "lbl_divi",
+            "fields": { "texto": "--- Division ---" },
+            "next": { "block": {
+              "type": "bloque_if_else", "id": "divi_check",
+              "fields": { "condicion": "b==0" },
+              "inputs": {
+                "cuerpoIf": { "block": {
+                  "type": "bloque_print_texto", "id": "divi_err",
+                  "fields": { "texto": "Error: division por cero" }
+                }},
+                "cuerpoElse": { "block": {
+                  "type": "bloque_decl_assign", "id": "divi_res",
+                  "fields": { "tipoDato": "float", "variable": "resultado", "valor": "a/b" },
+                  "next": { "block": {
+                    "type": "bloque_print", "id": "divi_print",
+                    "fields": { "valor": "resultado", "tipoDato": "float" }
+                  }}
+                }}
+              }
+            }}
+          }}
+        }
+      }
+    ]
+  }
+}

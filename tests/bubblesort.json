@@ -1,0 +1,185 @@
+{
+  "blocks": {
+    "languageVersion": 0,
+    "blocks": [
+      {
+        "type": "bloque_func_def",
+        "id": "fd1",
+        "x": 420,
+        "y": 50,
+        "fields": { "tipoRetorno": "void", "nombre": "bubblesort" },
+        "inputs": {
+          "params": { "block": {
+            "type": "bloque_param", "id": "p1",
+            "fields": { "tipoDato": "int", "nombre": "v0" },
+            "next": { "block": {
+              "type": "bloque_param", "id": "p2",
+              "fields": { "tipoDato": "int", "nombre": "v1" },
+              "next": { "block": {
+                "type": "bloque_param", "id": "p3",
+                "fields": { "tipoDato": "int", "nombre": "v2" },
+                "next": { "block": {
+                  "type": "bloque_param", "id": "p4",
+                  "fields": { "tipoDato": "int", "nombre": "v3" },
+                  "next": { "block": {
+                    "type": "bloque_param", "id": "p5",
+                    "fields": { "tipoDato": "int", "nombre": "v4" }
+                  }}
+                }}
+              }}
+            }}
+          }},
+          "cuerpo": { "block": {
+            "type": "bloque_vec_decl", "id": "f01",
+            "fields": { "tipoDato": "int", "nombre": "vec", "tamanio": 5 },
+            "next": { "block": {
+              "type": "bloque_vec_assign", "id": "f02",
+              "fields": { "nombre": "vec", "indice": "0", "valor": "v0" },
+              "next": { "block": {
+                "type": "bloque_vec_assign", "id": "f03",
+                "fields": { "nombre": "vec", "indice": "1", "valor": "v1" },
+                "next": { "block": {
+                  "type": "bloque_vec_assign", "id": "f04",
+                  "fields": { "nombre": "vec", "indice": "2", "valor": "v2" },
+                  "next": { "block": {
+                    "type": "bloque_vec_assign", "id": "f05",
+                    "fields": { "nombre": "vec", "indice": "3", "valor": "v3" },
+                    "next": { "block": {
+                      "type": "bloque_vec_assign", "id": "f06",
+                      "fields": { "nombre": "vec", "indice": "4", "valor": "v4" },
+                      "next": { "block": {
+                        "type": "bloque_print_texto", "id": "f07",
+                        "fields": { "texto": "=== Arreglo original ===" },
+                        "next": { "block": {
+                          "type": "bloque_for", "id": "f08",
+                          "fields": { "variable": "i", "inicio": 0, "fin": 5, "incremento": 1 },
+                          "inputs": {
+                            "cuerpo": { "block": {
+                              "type": "bloque_print_inline", "id": "f09",
+                              "fields": { "valor": "vec[i]", "tipoDato": "int" }
+                            }}
+                          },
+                          "next": { "block": {
+                            "type": "bloque_print_texto", "id": "f10",
+                            "fields": { "texto": "" },
+                            "next": { "block": {
+                              "type": "bloque_for", "id": "f11",
+                              "fields": { "variable": "i", "inicio": 0, "fin": 5, "incremento": 1 },
+                              "inputs": {
+                                "cuerpo": { "block": {
+                                  "type": "bloque_for", "id": "f12",
+                                  "fields": { "variable": "j", "inicio": 0, "fin": 4, "incremento": 1 },
+                                  "inputs": {
+                                    "cuerpo": { "block": {
+                                      "type": "bloque_if", "id": "f13",
+                                      "fields": { "condicion": "vec[j]>vec[j+1]" },
+                                      "inputs": {
+                                        "cuerpo": { "block": {
+                                          "type": "bloque_decl_assign", "id": "f14",
+                                          "fields": { "tipoDato": "int", "variable": "temp", "valor": "vec[j]" },
+                                          "next": { "block": {
+                                            "type": "bloque_vec_assign", "id": "f15",
+                                            "fields": { "nombre": "vec", "indice": "j", "valor": "vec[j+1]" },
+                                            "next": { "block": {
+                                              "type": "bloque_vec_assign", "id": "f16",
+                                              "fields": { "nombre": "vec", "indice": "j+1", "valor": "temp" }
+                                            }}
+                                          }}
+                                        }}
+                                      }
+                                    }}
+                                  }
+                                }}
+                              },
+                              "next": { "block": {
+                                "type": "bloque_print_texto", "id": "f17",
+                                "fields": { "texto": "=== Arreglo ordenado ===" },
+                                "next": { "block": {
+                                  "type": "bloque_for", "id": "f18",
+                                  "fields": { "variable": "i", "inicio": 0, "fin": 5, "incremento": 1 },
+                                  "inputs": {
+                                    "cuerpo": { "block": {
+                                      "type": "bloque_print_inline", "id": "f19",
+                                      "fields": { "valor": "vec[i]", "tipoDato": "int" }
+                                    }}
+                                  },
+                                  "next": { "block": {
+                                    "type": "bloque_print_texto", "id": "f20",
+                                    "fields": { "texto": "" }
+                                  }}
+                                }}
+                              }}
+                            }}
+                          }}
+                        }}
+                      }}
+                    }}
+                  }}
+                }}
+              }}
+            }}
+          }}
+        }
+      },
+      {
+        "type": "bloque_programa",
+        "id": "prog",
+        "x": 50,
+        "y": 50,
+        "inputs": {
+          "cuerpo": { "block": {
+            "type": "bloque_decl", "id": "m01",
+            "fields": { "tipoDato": "int", "variable": "v0" },
+            "next": { "block": {
+              "type": "bloque_read", "id": "m02",
+              "fields": { "tipoDato": "int", "variable": "v0" },
+              "next": { "block": {
+                "type": "bloque_decl", "id": "m03",
+                "fields": { "tipoDato": "int", "variable": "v1" },
+                "next": { "block": {
+                  "type": "bloque_read", "id": "m04",
+                  "fields": { "tipoDato": "int", "variable": "v1" },
+                  "next": { "block": {
+                    "type": "bloque_decl", "id": "m05",
+                    "fields": { "tipoDato": "int", "variable": "v2" },
+                    "next": { "block": {
+                      "type": "bloque_read", "id": "m06",
+                      "fields": { "tipoDato": "int", "variable": "v2" },
+                      "next": { "block": {
+                        "type": "bloque_decl", "id": "m07",
+                        "fields": { "tipoDato": "int", "variable": "v3" },
+                        "next": { "block": {
+                          "type": "bloque_read", "id": "m08",
+                          "fields": { "tipoDato": "int", "variable": "v3" },
+                          "next": { "block": {
+                            "type": "bloque_decl", "id": "m09",
+                            "fields": { "tipoDato": "int", "variable": "v4" },
+                            "next": { "block": {
+                              "type": "bloque_read", "id": "m10",
+                              "fields": { "tipoDato": "int", "variable": "v4" },
+                              "next": { "block": {
+                                "type": "bloque_func_call", "id": "m11",
+                                "fields": { "nombre": "bubblesort" },
+                                "extraState": {
+                                  "numArgs": 5,
+                                  "args": {
+                                    "arg1": "v0", "arg2": "v1", "arg3": "v2",
+                                    "arg4": "v3", "arg5": "v4"
+                                  }
+                                }
+                              }}
+                            }}
+                          }}
+                        }}
+                      }}
+                    }}
+                  }}
+                }}
+              }}
+            }}
+          }}
+        }
+      }
+    ]
+  }
+}

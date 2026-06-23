@@ -178,6 +178,8 @@ header .spacer { flex: 1; }
   padding: 8px 10px;
   border-bottom: 1px solid var(--color-border-soft);
   transition: border-color 0.25s;
+  overflow: hidden;
+  min-height: 0;
 }
 
 .panel-section.grow {
@@ -285,6 +287,48 @@ header .spacer { flex: 1; }
 #output-area {
   color: var(--code-text-output);
 }
+
+/* ── Pestañas ── */
+.tabs-bar {
+  display: flex;
+  flex-shrink: 0;
+  border-bottom: 2px solid var(--color-border-soft);
+  background: var(--color-surface);
+}
+
+.tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  padding: 7px 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.tab-btn:hover { color: var(--color-text); }
+
+.tab-btn.active {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}
+
+.tab-panel {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  padding: 8px 10px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.tab-panel.active { display: flex; }
 
 /* ── Scrollbar ── */
 .code-area::-webkit-scrollbar       { width: 5px; }

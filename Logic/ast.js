@@ -163,6 +163,15 @@ class AST {
         cinta.push('PRINT');
         break;
 
+      case 'printInline':
+        cinta.push('PRINT_INLINE');
+        break;
+
+      case 'printTexto':
+        cinta.push('PRINT_TEXTO');
+        break;
+
+
       case 'read':
         cinta.push('READ');
         break;
@@ -325,6 +334,15 @@ class AST {
       case 'print':
         cinta.push(`PRINT:${p.valor}:${p.tipoDato}`);
         break;
+
+      case 'printInline':
+        cinta.push(`PRINT_INLINE:${p.valor}:${p.tipoDato}`);
+        break;
+
+      case 'printTexto':
+        cinta.push(`PRINT_TEXTO:${p.texto}`);
+        break;
+
 
       case 'read':
         cinta.push(`READ:${p.variable}:${p.tipoDato}`);

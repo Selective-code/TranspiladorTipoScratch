@@ -62,6 +62,22 @@ defBloque('bloque_print', '#2e7d32', b => {
   b.setTooltip('Imprime un valor por pantalla');
 });
 
+defBloque('bloque_print_inline', '#2e7d32', b => {
+  b.appendDummyInput()
+    .appendField('Imprimir inline')
+    .appendField(new Blockly.FieldTextInput('valor'), 'valor')
+    .appendField('como')
+    .appendField(new Blockly.FieldDropdown(TIPOS_DATO_PRINT), 'tipoDato');
+  b.setTooltip('Imprime un valor sin salto de línea al final');
+});
+
+defBloque('bloque_print_texto', '#2e7d32', b => {
+  b.appendDummyInput()
+    .appendField('Imprimir texto')
+    .appendField(new Blockly.FieldTextInput('Hola mundo'), 'texto');
+  b.setTooltip('Imprime un texto literal en pantalla');
+});
+
 defBloque('bloque_read', '#2e7d32', b => {
   b.appendDummyInput()
     .appendField('Leer')
@@ -325,12 +341,13 @@ Blockly.Blocks['bloque_programa'] = {
   init() {
     this.setColour('#1a1a2e');
     this.appendDummyInput()
-      .appendField('⬛  programa');
+      .appendField('⬛  programa')
+      .appendField(new Blockly.FieldTextInput('mi_programa'), 'nombre');
     this.appendStatementInput('cuerpo')
       .setCheck(null);
     this.setDeletable(false);
     this.setMovable(true);
-    this.setTooltip('Bloque principal del programa. Todo el código va aquí dentro.');
+    this.setTooltip('Bloque principal del programa. El nombre se usará al descargar los archivos.');
   },
   customContextMenu(opciones) {
     /* Elimina las opciones de duplicar y copiar del menú contextual */
@@ -408,7 +425,9 @@ class UIBloques {
     const url    = URL.createObjectURL(blob);
     const a      = document.createElement('a');
     a.href       = url;
-    a.download   = 'programa.json';
+    const [prog] = this.workspace.getBlocksByType('bloque_programa', false);
+    const nombre = (prog?.getFieldValue('nombre') || 'programa').replace(/[^a-zA-Z0-9_\-]/g, '_');
+    a.download   = `${nombre}.json`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -463,36 +482,45 @@ class UIBloques {
 
   /* ── _cargarBloqueDesdeEstado ─────────────────────────────────── */
   _cargarBloqueDesdeEstado(blockState) {
-    const block = this.workspace.newBlock(blockState.type);
-    block.initSvg();
-
-    /* extraState primero — crea campos dinámicos antes de intentar llenarlos */
-    if (blockState.extraState != null && typeof block.loadExtraState === 'function') {
-      block.loadExtraState(blockState.extraState);
+    let block;
+    try {
+      block = this.workspace.newBlock(blockState.type);
+    } catch (e) {
+      throw new Error(`[${blockState.type}] newBlock falló: ${e.message}`);
     }
+    try {
+      block.initSvg();
 
-    for (const [name, val] of Object.entries(blockState.fields ?? {})) {
-      try { block.setFieldValue(String(val), name); } catch (_) {}
-    }
+      /* extraState primero — crea campos dinámicos antes de intentar llenarlos */
+      if (blockState.extraState != null && typeof block.loadExtraState === 'function') {
+        block.loadExtraState(blockState.extraState);
+      }
 
-    for (const [inputName, inputState] of Object.entries(blockState.inputs ?? {})) {
-      if (inputState?.block) {
-        const child = this._cargarBloqueDesdeEstado(inputState.block);
-        const input = block.getInput(inputName);
-        if (input?.connection && child.previousConnection) {
-          input.connection.connect(child.previousConnection);
+      for (const [name, val] of Object.entries(blockState.fields ?? {})) {
+        try { block.setFieldValue(String(val), name); } catch (_) {}
+      }
+
+      for (const [inputName, inputState] of Object.entries(blockState.inputs ?? {})) {
+        if (inputState?.block) {
+          const child = this._cargarBloqueDesdeEstado(inputState.block);
+          const input = block.getInput(inputName);
+          if (input?.connection && child.previousConnection) {
+            try { input.connection.connect(child.previousConnection); } catch (_) {}
+          }
         }
       }
-    }
 
-    if (blockState.next?.block) {
-      const next = this._cargarBloqueDesdeEstado(blockState.next.block);
-      if (block.nextConnection && next.previousConnection) {
-        block.nextConnection.connect(next.previousConnection);
+      if (blockState.next?.block) {
+        const next = this._cargarBloqueDesdeEstado(blockState.next.block);
+        if (block.nextConnection && next.previousConnection) {
+          try { block.nextConnection.connect(next.previousConnection); } catch (_) {}
+        }
       }
-    }
 
-    return block;
+      return block;
+    } catch (e) {
+      throw new Error(`[${blockState.type}] ${e.message}`);
+    }
   }
 
   /* ── agregarBloque ── */
@@ -586,6 +614,10 @@ class UIBloques {
 
       /* 6. Mostrar resultado y habilitar botones de descarga */
       this.mostrarOutput(output || '(sin output)');
+      const [prog] = this.workspace.getBlocksByType('bloque_programa', false);
+      const nombreArchivo = prog?.getFieldValue('nombre') || 'programa';
+      document.getElementById('btn-descargar-c').dataset.nombre   = nombreArchivo;
+      document.getElementById('btn-descargar-exe').dataset.nombre = nombreArchivo;
       document.getElementById('btn-descargar-c').disabled   = false;
       document.getElementById('btn-descargar-exe').disabled = false;
 
@@ -649,6 +681,23 @@ class UIBloques {
             valor:    bloque.getFieldValue('valor'),
             tipoDato: bloque.getFieldValue('tipoDato')
           }
+        };
+        break;
+
+      case 'bloque_print_inline':
+        nodo = {
+          tipo: 'printInline',
+          parametros: {
+            valor:    bloque.getFieldValue('valor'),
+            tipoDato: bloque.getFieldValue('tipoDato')
+          }
+        };
+        break;
+
+      case 'bloque_print_texto':
+        nodo = {
+          tipo: 'printTexto',
+          parametros: { texto: bloque.getFieldValue('texto') }
         };
         break;
 
