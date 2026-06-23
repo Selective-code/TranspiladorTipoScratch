@@ -29,13 +29,13 @@ app.use('/Logic/', express.static(path.join(__dirname, 'Logic')));
 
 /* ── POST /ejecutar ──────────────────────────────────────────── */
 app.post('/ejecutar', async (req, res) => {
-  const { codigo } = req.body;
+  const { codigo, stdin = '' } = req.body;
 
   if (!codigo || typeof codigo !== 'string') {
     return res.status(400).json({ output: '', error: 'No se recibió código C.' });
   }
 
-  const resultado = ejecutor.compilarYEjecutar(codigo);
+  const resultado = ejecutor.compilarYEjecutar(codigo, stdin);
   res.json(resultado);
 });
 
@@ -56,7 +56,6 @@ app.get('/descargar/exe', (req, res) => {
 });
 
 /* ── Arranque ────────────────────────────────────────────────── */
-
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en puerto ${PORT}`);
 });

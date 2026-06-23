@@ -4,14 +4,15 @@
 
    Q  = { q0, q1, q2, q3 }
    Σ  = tokens producidos por AST.obtenerCinta()
-   Γ  = { #, P, F, W, S }
+   Γ  = { #, A, P, N, F, W, S }
    q0 = q0  |  Z0 = #  |  F = { q2 }
 
    Valida que la estructura sintáctica del programa sea correcta:
    · los bloques FOR/WHILE/SWITCH están correctamente cerrados
    · BREAK solo aparece dentro de FOR, WHILE o SWITCH
    · CASE solo aparece dentro de SWITCH
-   · el programa abre con PROGRAMA y cierra con ENDPROGRAMA
+   · FUNC_DEF/ENDFUNC correctamente balanceados al nivel del archivo
+   · el archivo abre con ARCHIVO, el programa con PROGRAMA/ENDPROGRAMA
 ════════════════════════════════════════════════════════════════ */
 
 class AutomataPila {
@@ -104,13 +105,19 @@ class AutomataPila {
   /* ── _mensajeError (privado) ────────────────────────────────── */
   _mensajeError(token, tope) {
     if (this.estadoActual === 'q0') {
-      return 'Error: El programa debe comenzar con el bloque PROGRAMA';
+      return 'Error: El programa debe comenzar con el bloque ARCHIVO';
     }
     if (token === 'BREAK') {
       return 'Error: Se encontró BREAK fuera de un ciclo o switch';
     }
     if (token === 'CASE') {
       return 'Error: Se encontró CASE fuera de un bloque SWITCH';
+    }
+    if (token === 'FUNC_DEF') {
+      return 'Error: No se puede definir una función dentro de otra función o del programa';
+    }
+    if (token === 'ENDFUNC') {
+      return 'Error: ENDFUNC sin FUNC_DEF correspondiente o con bloques sin cerrar';
     }
     return `Error: Token inesperado '${token}' en contexto '${tope}'`;
   }
@@ -123,15 +130,30 @@ class AutomataPila {
 ════════════════════════════════════════════════════════════════ */
 AutomataPila.DELTA = {
 
-  /* ── q0: estado inicial, espera PROGRAMA ── */
+  /* ── q0: estado inicial, espera ARCHIVO ── */
   q0: {
-    PROGRAMA: {
-      '#': { estado: 'q1', op: 'push', simbolo: 'P' }
+    ARCHIVO: {
+      '#': { estado: 'q1', op: 'push', simbolo: 'A' }
     }
   },
 
-  /* ── q1: dentro del programa ── */
+  /* ── q1: dentro del archivo ── */
   q1: {
+
+    /* FUNC_DEF: solo al nivel del archivo (tope A) */
+    FUNC_DEF: {
+      A: { estado: 'q1', op: 'push', simbolo: 'N' }
+    },
+
+    /* ENDFUNC: cierra función (tope debe ser N) */
+    ENDFUNC: {
+      N: { estado: 'q1', op: 'pop' }
+    },
+
+    /* PROGRAMA: empieza el main, solo al nivel del archivo (tope A) */
+    PROGRAMA: {
+      A: { estado: 'q1', op: 'push', simbolo: 'P' }
+    },
 
     /* Apertura de bloques — empuja símbolo en la pila */
     FOR:    { λ: { estado: 'q1', op: 'push', simbolo: 'F' } },
@@ -148,23 +170,23 @@ AutomataPila.DELTA = {
       F: { estado: 'q1', op: 'no_op' },
       W: { estado: 'q1', op: 'no_op' },
       S: { estado: 'q1', op: 'no_op' },
-      /* BREAK inválido: tope P (raíz del programa, sin ciclo) */
-      P: { estado: 'q3', op: 'no_op' }
+      P: { estado: 'q3', op: 'no_op' },
+      N: { estado: 'q3', op: 'no_op' }
     },
 
     /* CASE válido: solo dentro de SWITCH */
     CASE: {
       S: { estado: 'q1', op: 'no_op' },
-      /* CASE inválido fuera de SWITCH */
       P: { estado: 'q3', op: 'no_op' },
       F: { estado: 'q3', op: 'no_op' },
-      W: { estado: 'q3', op: 'no_op' }
+      W: { estado: 'q3', op: 'no_op' },
+      N: { estado: 'q3', op: 'no_op' }
     },
 
     /* Tokens simples — no importa el tope (λ) */
-    IF:          { λ: { estado: 'q1', op: 'no_op' } },
-    ENDIF:       { λ: { estado: 'q1', op: 'no_op' } },
-    ELSE:        { λ: { estado: 'q1', op: 'no_op' } },
+    IF:        { λ: { estado: 'q1', op: 'no_op' } },
+    ENDIF:     { λ: { estado: 'q1', op: 'no_op' } },
+    ELSE:      { λ: { estado: 'q1', op: 'no_op' } },
     DECL:        { λ: { estado: 'q1', op: 'no_op' } },
     ASSIGN:      { λ: { estado: 'q1', op: 'no_op' } },
     DECL_ASSIGN: { λ: { estado: 'q1', op: 'no_op' } },
@@ -174,8 +196,10 @@ AutomataPila.DELTA = {
     VEC_ASSIGN:  { λ: { estado: 'q1', op: 'no_op' } },
     MAT_DECL:    { λ: { estado: 'q1', op: 'no_op' } },
     MAT_ASSIGN:  { λ: { estado: 'q1', op: 'no_op' } },
+    FUNC_CALL:   { λ: { estado: 'q1', op: 'no_op' } },
+    RETURN:      { λ: { estado: 'q1', op: 'no_op' } },
 
-    /* Fin del programa — solo si el tope es P (pila limpia) */
+    /* Fin del programa — solo si el tope es P */
     ENDPROGRAMA: {
       P: { estado: 'q2', op: 'pop' }
     }

@@ -121,6 +121,35 @@ class MTTransductora {
         salida = `${partes[1]}[${partes[2]}][${partes[3]}]=${partes[4]};\n`;
         break;
 
+      case 'FUNC_DEF': {
+        /* FUNC_DEF:nombre:tipoRetorno:numParams:tipo1:nom1:tipo2:nom2:tipo3:nom3 */
+        const fnNombre    = partes[1];
+        const tipoRetorno = partes[2];
+        const numParams   = parseInt(partes[3], 10) || 0;
+        const paramList   = [];
+        for (let i = 0; i < numParams; i++) {
+          paramList.push(`${partes[4 + i * 2]} ${partes[5 + i * 2]}`);
+        }
+        salida = `${tipoRetorno} ${fnNombre}(${paramList.join(', ')}){\n`;
+        break;
+      }
+
+      case 'FUNC_CALL': {
+        /* FUNC_CALL:nombre:numArgs:arg1:arg2:arg3 */
+        const callNombre = partes[1];
+        const numArgs    = parseInt(partes[2], 10) || 0;
+        const args       = [];
+        for (let i = 0; i < numArgs; i++) args.push(partes[3 + i]);
+        salida = `${callNombre}(${args.join(',')});\n`;
+        break;
+      }
+
+      case 'RETURN': {
+        const val = partes[1] ?? '';
+        salida = val.trim() ? `return ${val};\n` : 'return;\n';
+        break;
+      }
+
       default:
         this.ultimoError  = `Error: Token desconocido '${tokenCompleto}'`;
         this.estadoActual = 'q_error';
@@ -173,13 +202,15 @@ class MTTransductora {
 MTTransductora.DELTA = {
 
   q0: {
-    PROGRAMA: {
+    ARCHIVO: {
       siguiente: 'q1',
-      salida:    '#include <stdio.h>\n#include <stdlib.h>\nint main(){\n'
+      salida:    '#include <stdio.h>\n#include <stdlib.h>\n\n'
     }
   },
 
   q1: {
+    PROGRAMA:    { siguiente: 'q1',       salida: 'int main(){\n'  },
+    ENDFUNC:     { siguiente: 'q1',       salida: '}\n\n'          },
     ENDPROGRAMA: { siguiente: 'q_accept', salida: '#ifdef _WIN32\nsystem("pause");\n#endif\nreturn 0;\n}' },
     ENDFOR:      { siguiente: 'q1',       salida: '}\n'          },
     ENDWHILE:    { siguiente: 'q1',       salida: '}\n'          },

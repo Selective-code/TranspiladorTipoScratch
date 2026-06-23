@@ -57,12 +57,18 @@ class AST {
      La raíz es siempre un nodo "programa" cuyos hijos directos
      son los bloques del nivel superior del workspace.
   ────────────────────────────────────────────────────────────── */
-  construirDesdeUI(bloques) {
-    this.raiz = new NodoAST('programa', {}, []);
-    for (const bloqueJSON of bloques) {
-      this.raiz.agregarHijo(this._jsonANodo(bloqueJSON));
-    }
-    return this; // permite encadenar: ast.construirDesdeUI(b).obtenerCinta()
+  construirDesdeUI(datos) {
+    /* datos puede ser { funciones, hijos } (nuevo) o un array legacy */
+    const funciones = Array.isArray(datos) ? [] : (datos.funciones ?? []);
+    const hijos     = Array.isArray(datos) ? datos : (datos.hijos ?? []);
+
+    const nodoPrograma = new NodoAST('programa', {}, hijos.map(b => this._jsonANodo(b)));
+    const nodoArchivo  = new NodoAST('archivo', {}, [
+      ...funciones.map(b => this._jsonANodo(b)),
+      nodoPrograma
+    ]);
+    this.raiz = nodoArchivo;
+    return this;
   }
 
   /* ── _jsonANodo ────────────────────────────────────────────────
@@ -109,6 +115,29 @@ class AST {
   ────────────────────────────────────────────────────────────── */
   _nodoATokens(nodo, cinta) {
     switch (nodo.tipo) {
+
+      /* ── Nodo archivo: envuelve funciones + programa ── */
+      case 'archivo':
+        cinta.push('ARCHIVO');
+        for (const hijo of nodo.hijos) this._nodoATokens(hijo, cinta);
+        break;
+
+      /* ── Nodo función definida ── */
+      case 'funcDef':
+        cinta.push('FUNC_DEF');
+        for (const hijo of nodo.hijos) this._nodoATokens(hijo, cinta);
+        cinta.push('ENDFUNC');
+        break;
+
+      /* ── Llamada a función ── */
+      case 'funcCall':
+        cinta.push('FUNC_CALL');
+        break;
+
+      /* ── Return ── */
+      case 'return':
+        cinta.push('RETURN');
+        break;
 
       /* ── Nodo raíz: delimita el programa completo ── */
       case 'programa':
@@ -219,7 +248,11 @@ class AST {
 
   /* ── estaVacio ─────────────────────────────────────────────── */
   estaVacio() {
-    return !this.raiz || !this.raiz.tieneHijos();
+    if (!this.raiz) return true;
+    /* archivo tiene funciones + programa como hijos */
+    const programa = this.raiz.hijos.find(h => h.tipo === 'programa');
+    const funciones = this.raiz.hijos.filter(h => h.tipo === 'funcDef');
+    return funciones.length === 0 && (!programa || !programa.tieneHijos());
   }
 
   /* ── obtenerCintaConParametros ─────────────────────────────────
@@ -242,6 +275,34 @@ class AST {
     const p = nodo.parametros;
 
     switch (nodo.tipo) {
+
+      case 'archivo':
+        cinta.push('ARCHIVO');
+        for (const hijo of nodo.hijos) this._nodoATokensConParametros(hijo, cinta);
+        break;
+
+      case 'funcDef': {
+        const p2     = nodo.parametros;
+        const params = p2.params ?? [];
+        const paramStr = params.map(p => `${p.tipoDato}:${p.nombre}`).join(':');
+        const sep = params.length > 0 ? ':' : '';
+        cinta.push(`FUNC_DEF:${p2.nombre}:${p2.tipoRetorno}:${params.length}${sep}${paramStr}`);
+        for (const hijo of nodo.hijos) this._nodoATokensConParametros(hijo, cinta);
+        cinta.push('ENDFUNC');
+        break;
+      }
+
+      case 'funcCall': {
+        const pc   = nodo.parametros;
+        const args = pc.args ?? [];
+        const argStr = args.length > 0 ? ':' + args.join(':') : '';
+        cinta.push(`FUNC_CALL:${pc.nombre}:${args.length}${argStr}`);
+        break;
+      }
+
+      case 'return':
+        cinta.push(`RETURN:${nodo.parametros.valor ?? ''}`);
+        break;
 
       case 'programa':
         cinta.push('PROGRAMA');

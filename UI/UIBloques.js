@@ -195,6 +195,126 @@ defBloque('bloque_break', '#b71c1c', b => {
   b.setTooltip('Rompe el ciclo o switch actual');
 });
 
+/* ── Funciones ── */
+Blockly.Blocks['bloque_func_def'] = {
+  init() {
+    this.setColour('#00695c');
+    this.appendDummyInput()
+      .appendField('función')
+      .appendField(new Blockly.FieldDropdown(
+        [['void','void'],['int','int'],['float','float'],['double','double'],['char','char']]
+      ), 'tipoRetorno')
+      .appendField(new Blockly.FieldTextInput('miFuncion'), 'nombre');
+    this.appendStatementInput('params').setCheck(null).appendField('parámetros');
+    this.appendStatementInput('cuerpo').setCheck(null).appendField('cuerpo');
+    this.setDeletable(true);
+    this.setMovable(true);
+    this.setTooltip('Define una función personalizada. Arrastra bloques "parámetro" al input de parámetros.');
+  }
+};
+
+defBloque('bloque_param', '#00695c', b => {
+  b.appendDummyInput()
+    .appendField('parámetro')
+    .appendField(new Blockly.FieldDropdown(TIPOS_DATO), 'tipoDato')
+    .appendField(new Blockly.FieldTextInput('param'), 'nombre');
+  b.setTooltip('Parámetro de una función. Colócalo dentro del input "parámetros" de una función.');
+});
+
+Blockly.Blocks['bloque_func_call'] = {
+  init() {
+    this.setColour('#00695c');
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this._numArgs = 0;
+    this.appendDummyInput('FUNC_ROW')
+      .appendField('llamar')
+      .appendField(
+        new Blockly.FieldDropdown(() => this._opcionesFunciones()),
+        'nombre'
+      );
+    this.setTooltip('Llama a una función definida en el workspace.');
+  },
+
+  saveExtraState() {
+    const args = {};
+    for (let i = 1; i <= this._numArgs; i++) {
+      args['arg' + i] = this.getFieldValue('arg' + i) ?? '';
+    }
+    return { numArgs: this._numArgs, args };
+  },
+
+  loadExtraState(state) {
+    if (!state) return;
+    this._setArgFields(state.numArgs ?? 0);
+    const guardados = state.args ?? {};
+    for (let i = 1; i <= this._numArgs; i++) {
+      if (guardados['arg' + i] != null) {
+        try { this.setFieldValue(guardados['arg' + i], 'arg' + i); } catch (_) {}
+      }
+    }
+  },
+
+  onchange(e) {
+    if (!this.workspace || this.workspace.isFlyout) return;
+    /* Al cambiar la función seleccionada, regenerar args */
+    if (e.type === Blockly.Events.BLOCK_CHANGE &&
+        e.blockId === this.id && e.name === 'nombre') {
+      this._actualizarArgs();
+      return;
+    }
+    /* Al modificar un func_def o param en el workspace, revalidar */
+    const b = this.workspace.getBlockById(e.blockId);
+    if (b?.type === 'bloque_func_def' || b?.type === 'bloque_param') {
+      this._actualizarArgs();
+    }
+  },
+
+  _opcionesFunciones() {
+    const ws = this.workspace;
+    if (!ws) return [['(ninguna)', '']];
+    const funcs = ws.getBlocksByType('bloque_func_def', false)
+      .filter(b => !b.workspace?.isFlyout);
+    if (!funcs.length) return [['(ninguna)', '']];
+    return funcs.map(b => {
+      const n = b.getFieldValue('nombre') || '?';
+      return [n, n];
+    });
+  },
+
+  _actualizarArgs() {
+    const nombre = this.getFieldValue('nombre');
+    if (!nombre || !this.workspace) { this._setArgFields(0); return; }
+    const funcBlock = this.workspace.getBlocksByType('bloque_func_def', false)
+      .find(b => b.getFieldValue('nombre') === nombre && !b.workspace?.isFlyout);
+    if (!funcBlock) { this._setArgFields(0); return; }
+    let count = 0;
+    let p = funcBlock.getInput('params')?.connection?.targetBlock();
+    while (p) { count++; p = p.getNextBlock(); }
+    this._setArgFields(count);
+  },
+
+  _setArgFields(count) {
+    if (count === this._numArgs) return;
+    for (let i = 1; i <= this._numArgs + count + 1; i++) {
+      if (this.getInput('ARG' + i)) this.removeInput('ARG' + i);
+    }
+    for (let j = 1; j <= count; j++) {
+      this.appendDummyInput('ARG' + j)
+        .appendField('  arg' + j + ':')
+        .appendField(new Blockly.FieldTextInput(''), 'arg' + j);
+    }
+    this._numArgs = count;
+  }
+};
+
+defBloque('bloque_return', '#00695c', b => {
+  b.appendDummyInput()
+    .appendField('return')
+    .appendField(new Blockly.FieldTextInput(''), 'valor');
+  b.setTooltip('Retorna un valor de la función. Dejar vacío para void.');
+});
+
 /* ── Bloque raíz: programa ─────────────────────────────────────
    Contenedor único de todo el programa.
    No tiene previousStatement ni nextStatement:
@@ -299,13 +419,80 @@ class UIBloques {
     reader.onload = e => {
       try {
         const estado = JSON.parse(e.target.result);
-        this.workspace.clear();
-        Blockly.serialization.workspaces.load(estado, this.workspace);
+        const topBlockStates = estado?.blocks?.blocks ?? [];
+
+        /* Paso 1: igual que btn-limpiar — sin workspace.clear(), sin papelera */
+        for (const b of this.workspace.getTopBlocks(false)) {
+          if (b.type !== 'bloque_programa') b.dispose(false);
+        }
+        const [prog] = this.workspace.getBlocksByType('bloque_programa', false);
+        if (prog) {
+          let actual = prog.getInput('cuerpo')?.connection?.targetBlock();
+          while (actual) { const sig = actual.getNextBlock(); actual.dispose(false); actual = sig; }
+        }
+
+        /* Paso 2: reconstruir bloques desde el JSON sin usar workspaces.load()
+           (que siempre llama workspace.clear() e inevitablemente usa el trashcan) */
+        const progState   = topBlockStates.find(b => b.type === 'bloque_programa');
+        const otrosStates = topBlockStates.filter(b => b.type !== 'bloque_programa');
+
+        Blockly.Events.disable();
+
+        for (const blockState of otrosStates) {
+          const b = this._cargarBloqueDesdeEstado(blockState);
+          b.render();
+          if (blockState.x != null) b.moveBy(blockState.x, blockState.y ?? 0);
+        }
+
+        const cuerpoBloqueState = progState?.inputs?.cuerpo?.block;
+        if (cuerpoBloqueState && prog) {
+          const primero = this._cargarBloqueDesdeEstado(cuerpoBloqueState);
+          const conn = prog.getInput('cuerpo')?.connection;
+          if (conn && primero?.previousConnection) conn.connect(primero.previousConnection);
+        }
+
+        if (prog) prog.render();
+        Blockly.Events.enable();
+
       } catch (err) {
         alert('No se pudo cargar el archivo: ' + err.message);
       }
     };
     reader.readAsText(archivo);
+  }
+
+  /* ── _cargarBloqueDesdeEstado ─────────────────────────────────── */
+  _cargarBloqueDesdeEstado(blockState) {
+    const block = this.workspace.newBlock(blockState.type);
+    block.initSvg();
+
+    /* extraState primero — crea campos dinámicos antes de intentar llenarlos */
+    if (blockState.extraState != null && typeof block.loadExtraState === 'function') {
+      block.loadExtraState(blockState.extraState);
+    }
+
+    for (const [name, val] of Object.entries(blockState.fields ?? {})) {
+      try { block.setFieldValue(String(val), name); } catch (_) {}
+    }
+
+    for (const [inputName, inputState] of Object.entries(blockState.inputs ?? {})) {
+      if (inputState?.block) {
+        const child = this._cargarBloqueDesdeEstado(inputState.block);
+        const input = block.getInput(inputName);
+        if (input?.connection && child.previousConnection) {
+          input.connection.connect(child.previousConnection);
+        }
+      }
+    }
+
+    if (blockState.next?.block) {
+      const next = this._cargarBloqueDesdeEstado(blockState.next.block);
+      if (block.nextConnection && next.previousConnection) {
+        block.nextConnection.connect(next.previousConnection);
+      }
+    }
+
+    return block;
   }
 
   /* ── agregarBloque ── */
@@ -331,19 +518,20 @@ class UIBloques {
 
   /* ── exportarBloques ── */
   exportarBloques() {
-    const candidatos = this.workspace.getBlocksByType('bloque_programa', false);
-    if (candidatos.length === 0) {
-      console.warn('[UIBloques] No se encontró el bloque programa en el workspace.');
-      return [];
+    const funciones = [];
+    for (const b of this.workspace.getTopBlocks(false)) {
+      if (b.type === 'bloque_func_def') funciones.push(this._convertirBloque(b));
     }
-    return this._obtenerHijosDeInput(candidatos[0], 'cuerpo');
+    const [prog] = this.workspace.getBlocksByType('bloque_programa', false);
+    const hijos = prog ? this._obtenerHijosDeInput(prog, 'cuerpo') : [];
+    return { funciones, hijos };
   }
 
   /* ── onEjecutar ── */
   async onEjecutar() {
     /* 1. Exportar bloques del workspace */
     const bloquesJSON = this.exportarBloques();
-    if (bloquesJSON.length === 0) {
+    if (bloquesJSON.hijos.length === 0 && bloquesJSON.funciones.length === 0) {
       this.mostrarOutput('El programa está vacío. Agrega bloques dentro del bloque programa.');
       return;
     }
@@ -359,7 +547,15 @@ class UIBloques {
       return;
     }
 
-    /* 4. Generar código C con la MT Transductora */
+    /* 4. Análisis semántico con la MT Semántica */
+    const mts = new MTSemantica();
+    mts.cargarCinta(ast.obtenerCintaConParametros());
+    if (!mts.ejecutar()) {
+      this.mostrarOutput(mts.obtenerError());
+      return;
+    }
+
+    /* 5. Generar código C con la MT Transductora */
     const mt = new MTTransductora();
     mt.cargarCinta(ast.obtenerCintaConParametros());
     const codigo = mt.ejecutar();
@@ -374,10 +570,11 @@ class UIBloques {
     /* 5. Enviar al servidor para compilar y ejecutar */
     this.mostrarOutput('Compilando...');
     try {
+      const stdin = document.getElementById('stdin-area')?.value ?? '';
       const res = await fetch('/ejecutar', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ codigo })
+        body:    JSON.stringify({ codigo, stdin })
       });
 
       const { output, error } = await res.json();
@@ -575,6 +772,53 @@ class UIBloques {
       /* Control de Flujo */
       case 'bloque_break':
         nodo = { tipo: 'break', parametros: {} };
+        break;
+
+      /* Funciones */
+      case 'bloque_func_def': {
+        const paramNodos = this._obtenerHijosDeInput(bloque, 'params');
+        nodo = {
+          tipo: 'funcDef',
+          parametros: {
+            nombre:      bloque.getFieldValue('nombre'),
+            tipoRetorno: bloque.getFieldValue('tipoRetorno'),
+            params: paramNodos.map(p => ({
+              tipoDato: p.parametros.tipoDato,
+              nombre:   p.parametros.nombre
+            }))
+          },
+          hijos: this._obtenerHijosDeInput(bloque, 'cuerpo')
+        };
+        break;
+      }
+
+      case 'bloque_param':
+        nodo = {
+          tipo: 'param',
+          parametros: {
+            tipoDato: bloque.getFieldValue('tipoDato'),
+            nombre:   bloque.getFieldValue('nombre')
+          }
+        };
+        break;
+
+      case 'bloque_func_call': {
+        const args = [];
+        for (let i = 1; bloque.getInput('ARG' + i); i++) {
+          args.push(bloque.getFieldValue('arg' + i) ?? '');
+        }
+        nodo = {
+          tipo: 'funcCall',
+          parametros: { nombre: bloque.getFieldValue('nombre'), args }
+        };
+        break;
+      }
+
+      case 'bloque_return':
+        nodo = {
+          tipo: 'return',
+          parametros: { valor: bloque.getFieldValue('valor') }
+        };
         break;
 
       default:

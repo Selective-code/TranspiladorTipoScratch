@@ -62,7 +62,7 @@ class Ejecutor {
   }
 
   /* ── ejecutar ───────────────────────────────────────────────── */
-  ejecutar() {
+  ejecutar(stdin = '') {
     const envRun = {
       ...process.env,
       PATH: `C:\\msys64\\mingw64\\bin;C:\\msys64\\usr\\bin;${process.env.PATH}`
@@ -70,7 +70,7 @@ class Ejecutor {
     const resultado = spawnSync(
       this.rutaBinario,
       [],
-      { encoding: 'utf8', stdio: 'pipe', timeout: 5000, env: envRun }
+      { encoding: 'utf8', stdio: 'pipe', timeout: 5000, env: envRun, input: stdin }
     );
 
     if (resultado.error?.code === 'ETIMEDOUT') {
@@ -103,7 +103,7 @@ class Ejecutor {
   }
 
   /* ── compilarYEjecutar ──────────────────────────────────────── */
-  compilarYEjecutar(codigo) {
+  compilarYEjecutar(codigo, stdin = '') {
     try {
       this.guardarArchivo(codigo);
 
@@ -111,7 +111,7 @@ class Ejecutor {
         return { output: '', error: this.stderr };
       }
 
-      const output = this.ejecutar();
+      const output = this.ejecutar(stdin);
 
       if (this.stderr) {
         return { output, error: this.stderr };
